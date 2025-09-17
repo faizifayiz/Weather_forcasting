@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/projects on c/WeatherForcasting_tranzmeo/app/src/main/res/drawable/bg_clear_sky.xml" value="0.143" />
+        <entry key="..\:/projects on c/WeatherForcasting_tranzmeo/app/src/main/res/drawable/bg_cloudy.xml" value="0.143" />
+        <entry key="..\:/projects on c/WeatherForcasting_tranzmeo/app/src/main/res/drawable/bg_few_clouds.xml" value="0.143" />
+        <entry key="..\:/projects on c/WeatherForcasting_tranzmeo/app/src/main/res/drawable/bg_gradient.xml" value="0.143" />
+        <entry key="..\:/projects on c/WeatherForcasting_tranzmeo/app/src/main/res/drawable/bg_mist.xml" value="0.143" />
+        <entry key="..\:/projects on c/WeatherForcasting_tranzmeo/app/src/main/res/drawable/bg_rain.xml" value="0.143" />
+        <entry key="..\:/projects on c/WeatherForcasting_tranzmeo/app/src/main/res/drawable/bg_searchbox.xml" value="0.143" />
+        <entry key="..\:/projects on c/WeatherForcasting_tranzmeo/app/src/main/res/drawable/bg_snow.xml" value="0.143" />
+        <entry key="..\:/projects on c/WeatherForcasting_tranzmeo/app/src/main/res/drawable/bg_thunderstorm.xml" value="0.143" />
+        <entry key="..\:/projects on c/WeatherForcasting_tranzmeo/app/src/main/res/drawable/ic_feels_like.xml" value="0.143" />
+        <entry key="..\:/projects on c/WeatherForcasting_tranzmeo/app/src/main/res/drawable/ic_humidity.xml" value="0.143" />
+        <entry key="..\:/projects on c/WeatherForcasting_tranzmeo/app/src/main/res/drawable/ic_pressure.xml" value="0.143" />
+        <entry key="..\:/projects on c/WeatherForcasting_tranzmeo/app/src/main/res/drawable/ic_wind.xml" value="0.143" />
+        <entry key="..\:/projects on c/WeatherForcasting_tranzmeo/app/src/main/res/layout/activity_detail.xml" value="0.17083333333333334" />
+        <entry key="..\:/projects on c/WeatherForcasting_tranzmeo/app/src/main/res/layout/activity_main.xml" value="0.22" />
+        <entry key="..\:/projects on c/WeatherForcasting_tranzmeo/app/src/main/res/layout/activity_weather_detail.xml" value="0.1" />
+        <entry key="..\:/projects on c/WeatherForcasting_tranzmeo/app/src/main/res/layout/autocomplete_item.xml" value="0.5" />
+        <entry key="..\:/projects on c/WeatherForcasting_tranzmeo/app/src/main/res/layout/item_daily_forecast.xml" value="0.17083333333333334" />
+        <entry key="..\:/projects on c/WeatherForcasting_tranzmeo/app/src/main/res/layout/item_forecast.xml" value="0.16979166666666667" />
+        <entry key="..\:/projects on c/WeatherForcasting_tranzmeo/app/src/main/res/layout/item_hourly.xml" value="0.3333333333333333" />
+        <entry key="..\:/projects on c/WeatherForcasting_tranzmeo/app/src/main/res/layout/item_hourly_forecast.xml" value="0.17083333333333334" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="Android Studio default JDK" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+</project>

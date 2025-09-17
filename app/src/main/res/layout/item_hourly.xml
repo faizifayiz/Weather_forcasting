@@ -1,0 +1,54 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:gravity="center_horizontal"
+    android:paddingStart="12dp"
+    android:paddingEnd="12dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="8dp">
+
+    <TextView
+        android:id="@+id/tv_hour"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="11:30"
+        android:textColor="@android:color/white"
+        android:textSize="14sp"
+        android:gravity="center" />
+
+    <ImageView
+        android:id="@+id/iv_hour_icon"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="4dp"
+        android:src="@drawable/ic_baseline_wb_sunny_24" />
+
+    <TextView
+        android:id="@+id/tv_hour_temp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="25°"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_marginTop="4dp" />
+
+    <ImageView
+        android:id="@+id/iv_precipitation_icon"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:src="@drawable/drop"
+        app:tint="@android:color/white"
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:id="@+id/tv_hour_precip"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="88%"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        android:layout_marginTop="2dp" />
+</LinearLayout>
