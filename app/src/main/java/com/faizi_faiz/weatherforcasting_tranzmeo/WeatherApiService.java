@@ -30,5 +30,20 @@ public interface WeatherApiService {
             @Query("limit") int limit,
             @Query("appid") String apiKey
     );
+    @GET("weather")
+    Call<CurrentWeatherResponse> getCurrentWeatherByCoordinates(
+            @Query("lat") double lat,
+            @Query("lon") double lon,
+            @Query("appid") String apiKey,
+            @Query("units") String units
+    );
+
+    @GET("forecast")
+    Call<WeatherResponse> getForecastByCoordinates(
+            @Query("lat") double lat,
+            @Query("lon") double lon,
+            @Query("appid") String apiKey,
+            @Query("units") String units
+    );
 
 }

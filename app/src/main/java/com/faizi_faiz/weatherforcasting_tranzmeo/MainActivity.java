@@ -1,6 +1,8 @@
 package com.faizi_faiz.weatherforcasting_tranzmeo;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -13,18 +15,24 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.faizi_faiz.weatherforcasting_tranzmeo.Adapter.DailyForecastAdapter;
 import com.faizi_faiz.weatherforcasting_tranzmeo.Adapter.HourlyAdapter;
 import com.faizi_faiz.weatherforcasting_tranzmeo.LocalDB.DatabaseHelper;
+import com.faizi_faiz.weatherforcasting_tranzmeo.ModelClass.CurrentWeatherResponse;
 import com.faizi_faiz.weatherforcasting_tranzmeo.ModelClass.DailyWeatherModel;
 import com.faizi_faiz.weatherforcasting_tranzmeo.ModelClass.GeoResponse;
 import com.faizi_faiz.weatherforcasting_tranzmeo.ModelClass.HourlyWeatherModel;
 import com.faizi_faiz.weatherforcasting_tranzmeo.ModelClass.WeatherModel;
 import com.faizi_faiz.weatherforcasting_tranzmeo.ModelClass.WeatherResponse;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.gson.Gson;
 
 
@@ -37,6 +45,11 @@ import java.util.Map;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import android.Manifest;
+import android.content.pm.PackageManager;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -47,13 +60,26 @@ public class MainActivity extends AppCompatActivity {
 
     // Current weather card views
     private TextView tvLocation, tvTemperature, tvCondition, tvHighLow, tvFeelsLike;
-
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
+    private FusedLocationProviderClient fusedLocationClient;
     private static final String API_KEY = "85c64fd365bf858596de8f52373a2063";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        // Request location when activity starts
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    LOCATION_PERMISSION_REQUEST_CODE);
+        } else {
+            getCurrentLocation();
+        }
 
         initializeViews();
         setupDatabase();
@@ -366,5 +392,129 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "No offline data found for " + location, Toast.LENGTH_SHORT).show();
         }
     }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                getCurrentLocation();
+            } else {
+                Toast.makeText(this, "Permission denied. Could not get location.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+    private void fetchWeatherDataByCoordinates(double lat, double lon) {
+        WeatherApiService service = ApiClient.getClient().create(WeatherApiService.class);
+        Call<WeatherResponse> call = service.getForecastByCoordinates(lat, lon, API_KEY, "metric");
+
+        call.enqueue(new Callback<WeatherResponse>() {
+            @Override
+            public void onResponse(Call<WeatherResponse> call, Response<WeatherResponse> response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    // ✅ Pass to your UI handler
+                    handleWeatherResponse(response.body());
+                } else {
+                    Toast.makeText(MainActivity.this, "API error: " + response.code(), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<WeatherResponse> call, Throwable t) {
+                Toast.makeText(MainActivity.this, "Error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    @SuppressLint("MissingPermission")
+    private void getCurrentLocation() {
+        fusedLocationClient.getLastLocation()
+                .addOnSuccessListener(this, location -> {
+                    if (location != null) {
+                        double latitude = location.getLatitude();
+                        double longitude = location.getLongitude();
+
+//                        Toast.makeText(this,
+//                                "Lat: " + latitude + ", Lon: " + longitude,
+//                                Toast.LENGTH_LONG).show();
+
+                        // TODO: Call your weather API with lat & lon instead of city name
+                        fetchWeatherDataByCoordinates(latitude, longitude);
+                    } else {
+                        Toast.makeText(this, "Could not get location. Search manually.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+    private void handleWeatherResponse(WeatherResponse weatherResponse) {
+        if (weatherResponse == null || weatherResponse.getList().isEmpty()) return;
+
+        // ---- Current Weather ----
+        WeatherResponse.ForecastItem firstItem = weatherResponse.getList().get(0);
+        WeatherModel current = new WeatherModel();
+        current.setLocation(weatherResponse.getCity().getName() + "," + weatherResponse.getCity().getCountry());
+        current.setTimestamp(firstItem.getDtTxt());
+        current.setTemperature(firstItem.getMain().getTemp());
+        current.setFeelsLike(firstItem.getMain().getFeelsLike());
+        current.setHumidity(firstItem.getMain().getHumidity());
+        current.setPressure(firstItem.getMain().getPressure());
+        current.setWindSpeed(firstItem.getWind().getSpeed());
+        current.setDescription(firstItem.getWeather().get(0).getDescription());
+        current.setIcon(firstItem.getWeather().get(0).getIcon());
+
+        updateCurrentWeatherCard(current);
+
+        // ---- Hourly ----
+        List<HourlyWeatherModel> hourlyList = new ArrayList<>();
+        for (WeatherResponse.ForecastItem item : weatherResponse.getList()) {
+            String time = item.getDtTxt().split(" ")[1].substring(0, 5);
+            hourlyList.add(new HourlyWeatherModel(
+                    time,
+                    item.getWeather().get(0).getIcon(),
+                    item.getMain().getTemp(),
+                    (int) (item.getPop() * 100)
+            ));
+        }
+        recyclerHourly.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false));
+        recyclerHourly.setAdapter(new HourlyAdapter(this, hourlyList));
+
+        // ---- Daily ----
+        Map<String, List<WeatherResponse.ForecastItem>> dailyMap = new LinkedHashMap<>();
+        for (WeatherResponse.ForecastItem item : weatherResponse.getList()) {
+            String date = item.getDtTxt().split(" ")[0];
+            dailyMap.computeIfAbsent(date, k -> new ArrayList<>()).add(item);
+        }
+
+        List<DailyWeatherModel> dailyList = new ArrayList<>();
+        for (Map.Entry<String, List<WeatherResponse.ForecastItem>> entry : dailyMap.entrySet()) {
+            String date = entry.getKey();
+            double minTemp = Double.MAX_VALUE, maxTemp = Double.MIN_VALUE;
+            String icon = entry.getValue().get(0).getWeather().get(0).getIcon();
+            String desc = entry.getValue().get(0).getWeather().get(0).getDescription();
+            int humidity = entry.getValue().get(0).getMain().getHumidity();
+            double wind = entry.getValue().get(0).getWind().getSpeed();
+            int pressure = entry.getValue().get(0).getMain().getPressure();
+
+            List<HourlyWeatherModel> dayHourlyList = new ArrayList<>();
+            for (WeatherResponse.ForecastItem item : entry.getValue()) {
+                double temp = item.getMain().getTemp();
+                if (temp < minTemp) minTemp = temp;
+                if (temp > maxTemp) maxTemp = temp;
+
+                String time = item.getDtTxt().split(" ")[1].substring(0, 5);
+                dayHourlyList.add(new HourlyWeatherModel(
+                        time,
+                        item.getWeather().get(0).getIcon(),
+                        temp,
+                        (int) (item.getPop() * 100)
+                ));
+            }
+
+            dailyList.add(new DailyWeatherModel(date, icon, minTemp, maxTemp, desc, humidity, wind, pressure, dayHourlyList));
+        }
+
+        recyclerDaily.setLayoutManager(new LinearLayoutManager(this));
+        recyclerDaily.setAdapter(new DailyForecastAdapter(this, dailyList));
+    }
+
 
 }
